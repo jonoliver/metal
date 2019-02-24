@@ -1,12 +1,10 @@
 body {
-  margin: 0;
   text-align: center;
   background: #444;
 }
 
 div {
-  margin: auto;
-  padding: 1rem;
+  padding: 1rem 0;
   width: 100%;
 }
 
@@ -17,4 +15,6 @@ input[type=file] {
 canvas {
   box-shadow: 0px 50px 100px rgba(0, 0, 0, 0.5);
   border: 5px solid white;
+  max-width: 100%;
+  box-sizing: border-box;
 }
