@@ -9,7 +9,6 @@
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 const image = document.createElement('img');
-image.crossOrigin = 'anonymous';
 
 const captions = [
   "slow heavy metal music playing",
@@ -48,11 +47,10 @@ const handleFile = ({ target }) => {
 
   const reader = new FileReader();
   reader.readAsDataURL(file);
-  reader.onload = function(evt){
+  reader.onload = function (evt) {
     image.src = evt.target.result;
-    console.log(image.width, image.height)
     makeItMetalAF();
-	}
+  }
 }
 
 captionEl.addEventListener('change', makeItMetalAF);
