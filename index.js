@@ -6,9 +6,6 @@
 //        )     (
 //        \|||||/
 
-const canvas = document.querySelector('canvas');
-const context = canvas.getContext('2d');
-const image = document.createElement('img');
 
 const captions = [
   "slow heavy metal music playing",
@@ -24,36 +21,48 @@ captions.forEach(caption => {
   captionEl.appendChild(option);
 })
 
-const makeItMetalAF = () => {
+const dumbExifFix = (data, context, width) => {
+  try {
+    const orientation = data.exif.get('Orientation');
+    if (orientation === 6) {
+      // https://stackoverflow.com/a/40867559
+      // this is actually the transform for orientation 8 in the above answer
+      // not sure why there is a discrepancy
+      // whatever, "works on my machine"
+      context.transform(0, -1, 1, 0, 0, width);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+const makeItMetalAF = (canvas, data) => {
+  const context = canvas.getContext('2d');
+  const { width, height } = canvas;
+  dumbExifFix(data, context, width);
   const captionText = `(${captionEl.value})`;
-  const fontSize = image.width / 16;
-  canvas.width = image.width;
-  canvas.height = image.height;
-  context.drawImage(image, 0, 0);
+  const fontSize = width / 16;
+  const posX = width / 2;
+  const posY = height - height / 20;
   context.font = `${fontSize}px sans-serif`;
   context.textBaseline = "bottom";
   context.textAlign = 'center';
-  const posX = image.width / 2;
-  const posY = image.height - image.height / 20;
   context.fillStyle = 'black';
   context.fillText(captionText, posX + 1, posY + 1);
   context.fillStyle = 'yellow';
-  context.fillText(captionText, posX, posY);
+  context.fillText(captionText, Math.round(posX), Math.round(posY));
+  const result = document.querySelector('#result');
+  result.innerHTML = '';
+  result.appendChild(canvas);
 }
 
 const handleFile = ({ target }) => {
   const file = target.files[0];
   if (!file.type.match('image.*')) return alert("this ain't no image!");
-
-  const reader = new FileReader();
-  reader.readAsDataURL(file);
-  reader.onload = function (evt) {
-    image.src = evt.target.result;
-    makeItMetalAF();
-  }
+  loadImage(target.files[0], makeItMetalAF, { orientation: true });
 }
 
 captionEl.addEventListener('change', makeItMetalAF);
 document.querySelector('#file').addEventListener('change', handleFile);
-image.onload = makeItMetalAF;
-image.src = 'kitten.jpg';
+
+loadImage('kitten.jpg', makeItMetalAF, { orientation: true });
